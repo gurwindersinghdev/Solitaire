@@ -201,7 +201,10 @@ export const useSolitaireActions = () => {
     });
 
     if (!sponsorResp.ok) {
-      throw new Error(`Failed to sponsor transaction: ${sponsorResp.status}`);
+      const errJson = await sponsorResp.json().catch(() => null);
+      throw new Error(
+        `Failed to sponsor transaction: ${sponsorResp.status} - ${errJson?.error || "unknown error"}`
+      );
     }
 
     const { bytes: sponsoredBytes, digest: sponsoredDigest } =

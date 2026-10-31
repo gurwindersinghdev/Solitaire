@@ -25,8 +25,14 @@ export async function POST(req: NextRequest) {
       bytes: sponsored.bytes,
       digest: sponsored.digest,
     });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Sponsorship failed:", error);
-    return NextResponse.json({ error: "Sponsorship failed" }, { status: 500 });
+    return NextResponse.json(
+      {
+        error: error?.message || "Sponsorship failed",
+        body: error?.body || error?.data || null,
+      },
+      { status: 500 }
+    );
   }
 }

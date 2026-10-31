@@ -16,13 +16,17 @@ import {
   SuiClientProvider,
   WalletProvider,
 } from "@mysten/dapp-kit";
+import { SuiClient } from "@mysten/sui/client";
 
 // Create QueryClient instance outside component to prevent recreation on every render
 const queryClient = new QueryClient();
 
+const defaultUrl =
+  process.env.NEXT_PUBLIC_SUI_NETWORK || "http://localhost:3000/api/sui-rpc";
+
 const { networkConfig } = createNetworkConfig({
-  [process.env.NEXT_PUBLIC_SUI_NETWORK_NAME!]: {
-    url: process.env.NEXT_PUBLIC_SUI_NETWORK!,
+  [process.env.NEXT_PUBLIC_SUI_NETWORK_NAME || "testnet"]: {
+    url: defaultUrl,
   },
 });
 
@@ -32,7 +36,14 @@ export const ProvidersAndLayout = ({ children }: ChildrenProps) => {
     <QueryClientProvider client={queryClient}>
       <SuiClientProvider
         networks={networkConfig}
-        defaultNetwork={process.env.NEXT_PUBLIC_SUI_NETWORK_NAME!}
+        defaultNetwork={process.env.NEXT_PUBLIC_SUI_NETWORK_NAME || "testnet"}
+        createClient={() => {
+          const url =
+            typeof window !== "undefined"
+              ? `${window.location.origin}/api/sui-rpc`
+              : defaultUrl;
+          return new SuiClient({ url });
+        }}
       >
         <RegisterEnokiWallets />
         <WalletProvider autoConnect slushWallet={{ name: "Solitaire PoC" }}>
